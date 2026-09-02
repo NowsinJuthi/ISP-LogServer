@@ -1,4 +1,4 @@
-# uniqbd.com Log Server 3.8
+# ISP-LogServer 3.8
 
 **MikroTik NAT, Access and PPP log platform for ISPs and network operators.**
 
