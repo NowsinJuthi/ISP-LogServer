@@ -1,0 +1,187 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ServerType {
+  NAT_ACCESS
+  NAT
+  ACCESS
+  RAW
+}
+
+enum RetentionPeriod {
+  ONE_MONTH
+  THREE_MONTHS
+  SIX_MONTHS
+  ONE_YEAR
+}
+
+model User {
+  id          Int          @id @default(autoincrement())
+  userName    String       @unique
+  password    String
+  email       String?
+  firstName   String?
+  lastName    String?
+  isActivated Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  userRoles   UserRole[]
+  userServers UserServer[]
+  audits      Audit[]
+}
+
+model Role {
+  id          Int        @id @default(autoincrement())
+  roleName    String     @unique
+  description String?
+  userRoles   UserRole[]
+  roleMenus   RoleMenu[]
+}
+
+model UserRole {
+  userId Int
+  roleId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+}
+
+model Menu {
+  id        Int        @id @default(autoincrement())
+  menuName  String
+  url       String
+  position  Int        @default(0)
+  roleMenus RoleMenu[]
+}
+
+model RoleMenu {
+  roleId Int
+  menuId Int
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  menu   Menu @relation(fields: [menuId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, menuId])
+}
+
+model Server {
+  id                 Int              @id @default(autoincrement())
+  serverName         String
+  url                String
+  logServerUrl       String           @default("localhost")
+  userName           String?
+  password           String?
+  port               String?
+  type               ServerType       @default(NAT_ACCESS)
+  type1              String?
+  natIp              String?
+  natRouterId        String?
+  listeningPort      Int              @default(514)
+  retention          RetentionPeriod  @default(SIX_MONTHS)
+  disabled           Boolean          @default(false)
+  connectivityStatus Boolean          @default(false)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  userServers        UserServer[]
+  logs               LogEvent[]
+  pppSessions        PppSession[]
+}
+
+model UserServer {
+  userId   Int
+  serverId Int
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  server   Server @relation(fields: [serverId], references: [id], onDelete: Cascade)
+
+  @@id([userId, serverId])
+}
+
+model LogEvent {
+  id                 Int       @id @default(autoincrement())
+  serverId           Int
+  receivedAt         DateTime  @default(now())
+  deviceReportedTime DateTime?
+  userName           String?
+  gateway            String?
+  gatewayPort        String?
+  toHost             String?
+  toHostPort         String?
+  fromIp             String?
+  fromIpPort         String?
+  macAddress         String?
+  rawMessage         String?
+  server             Server    @relation(fields: [serverId], references: [id], onDelete: Cascade)
+
+  @@index([serverId, receivedAt])
+  @@index([userName])
+  @@index([fromIp])
+  @@index([macAddress])
+}
+
+model PppSession {
+  id         Int      @id @default(autoincrement())
+  serverId   Int
+  user       String?
+  mac        String?
+  fromIp     String?
+  receivedAt DateTime @default(now())
+  server     Server   @relation(fields: [serverId], references: [id], onDelete: Cascade)
+
+  @@index([serverId, fromIp])
+  @@index([serverId, receivedAt])
+}
+
+model CompanySetting {
+  id                   Int       @id @default(autoincrement())
+  companyName          String    @default("uniqbd.com Log Server")
+  companyLogoDirectory String?
+  logServerUrl         String?
+  mobileNumber         String?
+  smsSendingEnable     Boolean   @default(false)
+  smsProviderUserId    String?
+  smsProviderSender    String?
+  smsProviderPassword  String?
+  smsProviderId        String?
+  smsSentToday         Int       @default(0)
+  lastSmsSend          DateTime?
+  contactEmail         String?
+  emailSendingEnable   Boolean   @default(false)
+  smtpHost             String?
+  smtpPort             Int?
+  smtpSecure           Boolean   @default(true)
+  smtpUser             String?
+  smtpPassword         String?
+  smtpFromEmail        String?
+  smtpFromName         String?
+  mikrotikApiPort      Int       @default(1122)
+  mikrotikWinboxPort   Int       @default(1122)
+  mikrotikFirewallPort Int       @default(1122)
+  licenseKey           String?
+}
+
+model Audit {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  userName  String?
+  type      String?
+  tableName String?
+  oldValues String?
+  newValues String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([createdAt])
+}
+
+model Faq {
+  id       Int    @id @default(autoincrement())
+  question String
+  answer   String
+  position Int    @default(0)
+}

@@ -1,0 +1,10 @@
+-- AlterTable
+ALTER TABLE "CompanySetting" ADD COLUMN IF NOT EXISTS "contactEmail" TEXT;
+ALTER TABLE "CompanySetting" ADD COLUMN IF NOT EXISTS "emailSendingEnable" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "CompanySetting" ADD COLUMN IF NOT EXISTS "smtpHost" TEXT;
+ALTER TABLE "CompanySetting" ADD COLUMN IF NOT EXISTS "smtpPort" INTEGER;
+ALTER TABLE "CompanySetting" ADD COLUMN IF NOT EXISTS "smtpSecure" BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE "CompanySetting" ADD COLUMN IF NOT EXISTS "smtpUser" TEXT;
+ALTER TABLE "CompanySetting" ADD COLUMN IF NOT EXISTS "smtpPassword" TEXT;
+ALTER TABLE "CompanySetting" ADD COLUMN IF NOT EXISTS "smtpFromEmail" TEXT;
+ALTER TABLE "CompanySetting" ADD COLUMN IF NOT EXISTS "smtpFromName" TEXT;

@@ -1,0 +1,12 @@
+{
+  "name": "log-server-next",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"npm run dev --prefix api\" \"npm run dev --prefix web\"",
+    "db:up": "docker compose up -d",
+    "install:all": "npm install --prefix api && npm install --prefix web"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
