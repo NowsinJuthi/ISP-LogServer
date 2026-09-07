@@ -232,9 +232,7 @@ export default function LicensePage() {
               <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2">{ok}</p>
             ) : null}
             {status?.configured === false ? (
-              <p className="text-xs text-slate-500">
-                License API URL is not set. Set AMARPIN_API_URL in the server .env file, then restart the API.
-              </p>
+              <p className="text-xs text-slate-500">License server is not configured on this API.</p>
             ) : null}
             {status?.message && !active && !error ? (
               <p className="text-xs text-slate-500">{status.message}</p>

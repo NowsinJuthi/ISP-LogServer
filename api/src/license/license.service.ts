@@ -6,7 +6,17 @@ import { join } from 'path';
 import { PrismaService } from '../prisma.service';
 import { WebConfigService } from '../company/web-config.service';
 import type { AmarpinLicense, AmarpinLicenseResult } from './amarpin-license';
-import { LICENSE_VENDOR, RETENTION_LICENSE_MESSAGE, ROUTER_LICENSE_MESSAGE } from './license.env';
+import {
+  AMARPIN_API_URL,
+  AMARPIN_APP_VERSION,
+  AMARPIN_LICENSE_KEY,
+  AMARPIN_PRODUCT_ID,
+  AMARPIN_SITE_SECRET,
+  LICENSE_VENDOR,
+  RETENTION_LICENSE_MESSAGE,
+  ROUTER_LICENSE_MESSAGE,
+  licenseConfigured,
+} from './license.env';
 
 const requireJs = createRequire(__filename);
 const { AmarpinLicense: AmarpinLicenseClient } = requireJs(join(__dirname, 'amarpin-license.js')) as {
@@ -75,7 +85,7 @@ export class LicenseService implements OnModuleInit {
       searchUnlocked: this.allowed,
       keySet: !!this.storedKey,
       licenseKeyMasked: this.storedKey ? maskKey(this.storedKey) : '',
-      configured: this.hmacReady(),
+      configured: licenseConfigured(),
       code: this.lastCode || undefined,
       message: this.lastMessage || undefined,
       vendor: LICENSE_VENDOR,
@@ -85,9 +95,9 @@ export class LicenseService implements OnModuleInit {
   async onModuleInit() {
     await this.webConfig.ensureRestored();
     await this.ensureLicenseMenu();
-    this.storedKey = (process.env.AMARPIN_LICENSE_KEY || '').trim() || (await this.readStoredKey());
-    if (!this.hmacReady()) {
-      this.log.warn('Amarpin API URL missing. Set AMARPIN_API_URL if the default is wrong.');
+    this.storedKey = AMARPIN_LICENSE_KEY.trim() || (await this.readStoredKey());
+    if (!licenseConfigured()) {
+      this.log.warn('Amarpin API URL is missing in license.env.ts.');
       return;
     }
     if (!this.storedKey) {
@@ -108,10 +118,8 @@ export class LicenseService implements OnModuleInit {
     if (key.length < 8 || key.length > 128) {
       throw new BadRequestException('Enter a valid license key.');
     }
-    if (!this.hmacReady()) {
-      throw new BadRequestException(
-        'License server is not reachable. Check AMARPIN_API_URL.',
-      );
+    if (!licenseConfigured()) {
+      throw new BadRequestException('License server is not configured.');
     }
     this.buildClient(key);
     try {
@@ -184,20 +192,15 @@ export class LicenseService implements OnModuleInit {
     }
   }
 
-  private hmacReady() {
-    return true;
-  }
-
   private buildClient(licenseKey: string) {
     this.client = new AmarpinLicenseClient({
-      apiUrl: (process.env.AMARPIN_API_URL || 'https://license.amarpin.com/api').trim(),
+      apiUrl: AMARPIN_API_URL.trim(),
       licenseKey,
-      productId: (process.env.AMARPIN_PRODUCT_ID || 'log-server').trim(),
-      installationId: (process.env.AMARPIN_INSTALLATION_ID || `log-server-${hostname()}`).trim(),
-      version: (process.env.AMARPIN_APP_VERSION || '1.0.0').trim(),
-      cachePath:
-        (process.env.AMARPIN_CACHE_PATH || '').trim() ||
-        join(process.env.LOG_FILE_DIR || join(process.cwd(), 'data'), 'amarpin-license-cache.json'),
+      siteSecret: AMARPIN_SITE_SECRET.trim(),
+      productId: AMARPIN_PRODUCT_ID.trim(),
+      installationId: `log-server-${hostname()}`,
+      version: AMARPIN_APP_VERSION.trim(),
+      cachePath: join(process.env.LOG_FILE_DIR || join(process.cwd(), 'data'), 'amarpin-license-cache.json'),
       timeoutMs: 20000,
       validationIntervalHours: 6,
     });

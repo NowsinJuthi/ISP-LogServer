@@ -254,8 +254,6 @@ Template: `.env.production.example`
 | `COOKIE_SECURE` | `false` on HTTP, `true` on HTTPS |
 | `SEED_ADMIN_USERNAME` / `SEED_ADMIN_PASSWORD` | First admin only |
 | `ALLOW_DESTRUCTIVE_SEED` | Keep `false` on production |
-| `AMARPIN_API_URL` | `https://license.amarpin.com/api` |
-| `AMARPIN_LICENSE_KEY` | Leave empty; activate the key in the website |
 | `SMS_URL_ALLOWLIST` | Extra HTTPS SMS provider hosts (optional) |
 | `SMS_DAILY_LIMIT` | Max SMS per day (default 30) |
 | `SMTP_HOST_ALLOWLIST` / `SMTP_ALLOW_PRIVATE` / `SMTP_PORT_ALLOWLIST` | SMTP safety (optional) |
