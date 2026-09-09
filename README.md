@@ -56,7 +56,7 @@ ISPs need a dedicated place to keep MikroTik logs instead of scrolling RouterOS 
 
 Router types: `NAT+ACCESS`, `NAT`, `ACCESS`, `RAW`.
 
-Auto Log Delete packages: **1 month**, **3 months**, **6 months**, **1 year**. Nightly purge at **02:15 Asia/Dhaka**.
+Auto Log Delete packages: **1 month**, **3 months**, **6 months**, **1 year**. Nightly purge at **02:15 Asia/Dhaka** removes old database rows and unused daily folders under `data/logs`. Search Log reads PostgreSQL only; duplicate syslog files are not written unless `LOG_FILE_ENABLE=true`.
 
 ---
 
@@ -386,7 +386,7 @@ Keep copies of:
 | --- | --- |
 | Passwords / secrets | `/opt/logserver/.env` |
 | Favicon and web config | `/opt/logserver/data/web-config` |
-| File logs / license cache | `/opt/logserver/data/logs` |
+| License cache | `/opt/logserver/data/logs` |
 | PostgreSQL data | Docker volume `pgdata` |
 
 Database dump:

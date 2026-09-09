@@ -32,6 +32,7 @@ const modules = [
   { name: 'Add MikroTik', detail: 'Register NAT, Access or RAW routers and set retention.' },
   { name: 'Search Log', detail: 'Filter by user, IP, NAT, MAC, port and date range.' },
   { name: 'User Manager', detail: 'Create accounts, assign roles and reset passwords.' },
+  { name: 'Change Password', detail: 'Signed-in users, including Super Admin, can change their own password from the top bar.' },
   { name: 'Role Manager', detail: 'Control which menus each role can open.' },
   { name: 'Server Manager', detail: 'Assign which MikroTik a user is allowed to see.' },
   { name: 'Server Settings', detail: 'Company name and log server URL used by this site.' },

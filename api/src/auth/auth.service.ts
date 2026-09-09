@@ -1,8 +1,10 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma.service';
+
+const WEAK_PASSWORDS = new Set(['Admin@12345', 'admin', 'password', '12345678', 'changeme']);
 
 @Injectable()
 export class AuthService {
@@ -39,6 +41,32 @@ export class AuthService {
       message: `${user.userName} signed in`,
     });
     return { token, profile: this.toProfile(user, allMenus, company?.companyName) };
+  }
+
+  async changePassword(userId: number, currentPassword: string, newPassword: string) {
+    const current = String(currentPassword || '');
+    const next = String(newPassword || '');
+    if (next.length < 8) throw new BadRequestException('Password must be at least 8 characters');
+    if (next.length > 200) throw new BadRequestException('Password is too long');
+    if (WEAK_PASSWORDS.has(next)) throw new BadRequestException('Choose a stronger password');
+    if (next === current) throw new BadRequestException('New password must be different from the current password');
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user || !user.isActivated) throw new UnauthorizedException();
+    const matches = await bcrypt.compare(current, user.password);
+    if (!matches) throw new BadRequestException('Current password is incorrect');
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { password: await bcrypt.hash(next, 10) },
+    });
+    void this.audit.write({
+      actor: { id: user.id, userName: user.userName },
+      type: 'PASSWORD_CHANGE',
+      tableName: 'Auth',
+      message: `${user.userName} changed their password`,
+    });
+    return { ok: true };
   }
 
   async me(userId: number) {

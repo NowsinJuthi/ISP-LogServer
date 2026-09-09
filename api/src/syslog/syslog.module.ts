@@ -5,6 +5,6 @@ import { SyslogService } from './syslog.service';
 
 @Module({
   providers: [DailyLogFileWriter, SessionTable, SyslogService],
-  exports: [SessionTable],
+  exports: [SessionTable, DailyLogFileWriter],
 })
 export class SyslogModule {}

@@ -18,6 +18,18 @@ class LoginDto {
   password: string;
 }
 
+class ChangePasswordDto {
+  @IsString()
+  @MinLength(1)
+  @MaxLength(200)
+  currentPassword: string;
+
+  @IsString()
+  @MinLength(8)
+  @MaxLength(200)
+  newPassword: string;
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(private auth: AuthService) {}
@@ -55,5 +67,11 @@ export class AuthController {
   @Get('me')
   me(@Req() req: { user: AuthUser }) {
     return this.auth.me(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('change-password')
+  changePassword(@Req() req: { user: AuthUser }, @Body() body: ChangePasswordDto) {
+    return this.auth.changePassword(req.user.id, body.currentPassword, body.newPassword);
   }
 }

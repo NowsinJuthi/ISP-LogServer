@@ -336,6 +336,10 @@ textarea {
   background: rgb(var(--brand) / 0.18);
 }
 
+.ls-logoff-active {
+  background: rgb(var(--brand) / 0.22);
+}
+
 .ls-sidebar-title {
   color: rgb(var(--sidebar-fg));
 }

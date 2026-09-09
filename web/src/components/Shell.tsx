@@ -26,7 +26,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       router.replace('/servers');
       return;
     }
-    if (path && path !== '/login' && !allowed.has(path)) {
+    if (path && path !== '/login' && path !== '/change-password' && !allowed.has(path)) {
       router.replace(me.menus[0]?.url || '/dashboard');
     }
   }, [me, path, router]);
@@ -103,6 +103,16 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             <ThemeToggle />
             <span className="ls-avatar">{userLetter}</span>
             <span className="ls-topbar-user font-medium">{me.userName}</span>
+            <Link
+              href="/change-password"
+              className={`ls-logoff ${path === '/change-password' ? 'ls-logoff-active' : ''}`}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
+                <rect x="5" y="11" width="14" height="10" rx="2" strokeWidth="2" />
+                <path strokeLinecap="round" strokeWidth="2" d="M8 11V8a4 4 0 0 1 8 0v3" />
+              </svg>
+              Change Password
+            </Link>
             <button type="button" onClick={logout} className="ls-logoff">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
                 <path

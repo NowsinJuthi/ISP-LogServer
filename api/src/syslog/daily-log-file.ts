@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { mkdir, appendFile } from 'fs/promises';
+import { mkdir, appendFile, readdir, rm } from 'fs/promises';
 import { join, resolve } from 'path';
 
 const SAFE = /[^A-Za-z0-9._-]+/g;
+const DAY_FOLDER = /^\d{4}-\d{2}-\d{2}$/;
 
 @Injectable()
 export class DailyLogFileWriter {
@@ -40,6 +41,12 @@ export class DailyLogFileWriter {
     return `${g('year')}-${g('month')}-${g('day')} ${g('hour')}:${g('minute')}:${g('second')}`;
   }
 
+  /** Duplicate disk copies of syslog. Off by default — Search Log reads PostgreSQL. */
+  filesEnabled(): boolean {
+    const raw = (process.env.LOG_FILE_ENABLE || '').trim().toLowerCase();
+    return raw === 'true' || raw === '1';
+  }
+
   fileName(serverName: string, kind: 'NAT' | 'PPP'): string {
     const base = (serverName || 'server').replace(SAFE, '_').replace(/^_+|_+$/g, '') || 'server';
     return kind === 'PPP' ? `${base}-ppp.log` : `${base}.log`;
@@ -54,6 +61,7 @@ export class DailyLogFileWriter {
     user?: string | null;
     fromIp?: string | null;
   }) {
+    if (!this.filesEnabled()) return;
     const at = input.at || new Date();
     const day = this.dayKey(at);
     const dir = join(this.root, day);
@@ -75,5 +83,41 @@ export class DailyLogFileWriter {
     } catch (e) {
       this.log.warn(`Daily log file write failed: ${(e as Error).message}`);
     }
+  }
+
+  /**
+   * Remove YYYY-MM-DD folders under the log directory.
+   * When disk copies are disabled, all date folders go (Search does not use them).
+   * When enabled, folders older than cutoffDay (inclusive bound is cutoffDay itself kept) are removed.
+   * Never touches amarpin-license-cache.json or other non-date files.
+   */
+  async purgeDateFolders(cutoffDay?: string) {
+    let names: string[];
+    try {
+      names = await readdir(this.root);
+    } catch {
+      return 0;
+    }
+    const keepFrom = cutoffDay && this.filesEnabled() ? cutoffDay : null;
+    let removed = 0;
+    for (const name of names) {
+      if (!DAY_FOLDER.test(name)) continue;
+      if (keepFrom && name >= keepFrom) continue;
+      try {
+        await rm(join(this.root, name), { recursive: true, force: true });
+        this.made.delete(join(this.root, name));
+        removed += 1;
+      } catch (e) {
+        this.log.warn(`Could not delete log folder ${name}: ${(e as Error).message}`);
+      }
+    }
+    if (removed) {
+      this.log.log(
+        keepFrom
+          ? `Removed ${removed} daily log folder(s) older than ${keepFrom}`
+          : `Removed ${removed} unused daily log folder(s); Search Log uses the database`,
+      );
+    }
+    return removed;
   }
 }

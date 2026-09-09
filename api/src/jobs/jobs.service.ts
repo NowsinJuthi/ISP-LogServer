@@ -5,6 +5,7 @@ import { NotifyService } from '../notify/notify.service';
 import { PrismaService } from '../prisma.service';
 import { fetchPppActive } from '../servers/mikrotik-ppp';
 import { retentionMonths } from '../servers/retention';
+import { DailyLogFileWriter } from '../syslog/daily-log-file';
 import { SessionTable } from '../syslog/session-table';
 import { readMikrotikPorts } from '../company/mikrotik-ports';
 
@@ -21,6 +22,7 @@ export class JobsService implements OnModuleInit {
     private prisma: PrismaService,
     private notify: NotifyService,
     private sessions: SessionTable,
+    private logFiles: DailyLogFileWriter,
   ) {
     const url = process.env.REDIS_URL;
     if (url) {
@@ -49,6 +51,7 @@ export class JobsService implements OnModuleInit {
       this.log.log(`Purged server ${s.serverName}: logs=${logs.count} ppp=${ppp.count}`);
     }
     await this.purgeOldActivityLogs();
+    await this.purgeOldLogFiles(servers);
     if (this.queue) {
       try {
         await this.queue.add('purge-done', { at: new Date().toISOString() });
@@ -65,6 +68,15 @@ export class JobsService implements OnModuleInit {
       where: { createdAt: { lt: cutoff } },
     });
     this.log.log(`Purged activity logs older than 30 days: ${audit.count}`);
+  }
+
+  /** Disk copies under data/logs/{YYYY-MM-DD}. Unused when LOG_FILE_ENABLE is off. */
+  async purgeOldLogFiles(servers?: { retention: Parameters<typeof retentionMonths>[0] }[]) {
+    const rows = servers || (await this.prisma.server.findMany({ select: { retention: true } }));
+    const months = rows.length ? Math.max(...rows.map((s) => retentionMonths(s.retention))) : 1;
+    const cutoff = new Date();
+    cutoff.setMonth(cutoff.getMonth() - months);
+    await this.logFiles.purgeDateFolders(this.logFiles.dayKey(cutoff));
   }
 
   @Cron('*/2 * * * *')
@@ -110,6 +122,7 @@ export class JobsService implements OnModuleInit {
     this.log.log('PPP/ARP client-map sync scheduled');
     void this.syncPppSessions();
     void this.purgeOldActivityLogs();
+    void this.purgeOldLogFiles();
   }
 
   @Cron('*/30 * * * * *')
