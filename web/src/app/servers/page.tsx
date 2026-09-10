@@ -201,7 +201,7 @@ export default function ServersPage() {
           </div>
         ) : null}
       </section>
-      <div className="flex gap-2 mb-3 text-sm">
+      <div className="flex flex-wrap gap-2 mb-3 text-sm">
         {(['all', 'active', 'disabled'] as const).map((f) => (
           <button
             key={f}
@@ -306,7 +306,7 @@ export default function ServersPage() {
           <form onSubmit={save} className="bg-white border border-slate-200 rounded-xl w-full max-w-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg font-semibold">{editId ? 'Edit Server' : 'Add Server'}</h2>
             {error && <p className="text-sm text-red-600">{error}</p>}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Server Name">
                 <input required className="input" value={form.serverName} onChange={(e) => set('serverName', e.target.value)} />
               </Field>

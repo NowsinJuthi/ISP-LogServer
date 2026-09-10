@@ -344,7 +344,33 @@ textarea {
   color: rgb(var(--sidebar-fg));
 }
 
+.ls-app {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+}
+
+.ls-shell-main {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.ls-main {
+  flex: 1;
+  min-width: 0;
+  padding: 1rem;
+}
+
 .ls-topbar {
+  display: flex;
+  min-height: 3.5rem;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0.75rem;
   background: linear-gradient(
     180deg,
     rgb(var(--bg-elevated) / 0.96) 0%,
@@ -352,6 +378,57 @@ textarea {
   );
   border-bottom: 1px solid rgb(var(--border));
   box-shadow: 0 4px 16px rgb(0 0 0 / 0.04);
+}
+
+.ls-topbar-brand {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgb(var(--fg));
+}
+
+.ls-topbar-actions {
+  display: flex;
+  margin-left: auto;
+  min-width: 0;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.875rem;
+}
+
+.ls-menu-btn {
+  display: grid;
+  height: 2.15rem;
+  width: 2.15rem;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 0.55rem;
+  border: 1px solid rgb(var(--brand) / 0.28);
+  color: rgb(var(--brand-deep));
+  background: rgb(var(--brand) / 0.1);
+}
+
+.ls-menu-btn svg {
+  height: 1.15rem;
+  width: 1.15rem;
+}
+
+.ls-menu-btn:hover {
+  background: rgb(var(--brand) / 0.18);
+}
+
+.ls-nav-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  border: 0;
+  background: rgb(0 0 0 / 0.48);
+}
+
+.ls-logoff-text {
+  display: none;
 }
 
 .ls-topbar-label,
@@ -384,6 +461,7 @@ textarea {
 }
 
 [data-theme="dark"] .ls-theme-toggle,
+[data-theme="dark"] .ls-menu-btn,
 [data-theme="dark"] .ls-logoff {
   color: rgb(var(--brand-light));
 }
@@ -634,6 +712,8 @@ textarea {
 
 .ls-status-pill {
   display: inline-flex;
+  max-width: 100%;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.45rem;
   border-radius: 999px;
@@ -1013,4 +1093,113 @@ textarea {
   .ls-footer-support {
     width: 100%;
   }
+
+  .ls-footer-contact {
+    flex: 1 1 100%;
+  }
 }
+
+@media (max-width: 1023px) {
+  .ls-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 40;
+    width: min(18rem, 88vw);
+    transform: translateX(-105%);
+    transition: transform 0.2s ease;
+    box-shadow: 12px 0 40px rgb(0 0 0 / 0.28);
+  }
+
+  .ls-sidebar.ls-sidebar-open {
+    transform: translateX(0);
+  }
+}
+
+@media (min-width: 640px) {
+  .ls-logoff-text {
+    display: inline;
+  }
+
+  .ls-topbar-actions {
+    gap: 0.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .ls-main {
+    padding: 1.5rem;
+  }
+
+  .ls-topbar {
+    justify-content: flex-end;
+    padding: 0 1.5rem;
+  }
+
+  .ls-nav-scrim,
+  .ls-menu-btn {
+    display: none;
+  }
+}
+
+@media (max-width: 639px) {
+  .ls-main h1 {
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+
+  .ls-page-hero {
+    padding: 1rem;
+    border-radius: 0.85rem;
+  }
+
+  .ls-page-title {
+    font-size: 1.15rem;
+  }
+
+  .ls-page-icon {
+    height: 2.5rem;
+    width: 2.5rem;
+  }
+
+  .ls-btn-solid,
+  .ls-btn-search,
+  .ls-btn-danger {
+    min-height: 2.75rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .ls-topbar-brand {
+    display: none;
+  }
+}
+
+.ls-main .overflow-x-auto {
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ls-main input,
+.ls-main select,
+.ls-main textarea {
+  max-width: 100%;
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.ls-footer-login .ls-footer-inner,
+.ls-footer-login .ls-footer-support {
+  display: none;
+}
+
+.ls-footer-login .ls-footer-bar {
+  justify-content: center;
+  text-align: center;
+}
+

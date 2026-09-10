@@ -265,16 +265,18 @@ export default function ServiceInfoPage() {
         <div className="px-5 py-3 border-b border-slate-100 text-sm font-medium text-slate-800">
           Technical information
         </div>
-        <table className="min-w-full text-sm">
-          <tbody>
-            {specs.map(([k, v]) => (
-              <tr key={k} className="border-t border-slate-100">
-                <td className="px-5 py-2.5 text-slate-500 w-40 align-top">{k}</td>
-                <td className="px-5 py-2.5 text-slate-800">{v}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm">
+            <tbody>
+              {specs.map(([k, v]) => (
+                <tr key={k} className="border-t border-slate-100">
+                  <td className="px-5 py-2.5 text-slate-500 w-40 align-top">{k}</td>
+                  <td className="px-5 py-2.5 text-slate-800">{v}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
     </Shell>
   );

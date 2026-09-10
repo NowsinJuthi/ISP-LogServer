@@ -174,7 +174,7 @@ export default function SearchLogPage() {
           </p>
         </div>
         {selected && (
-          <div className="text-right text-xs text-slate-500">
+          <div className="text-left text-xs text-slate-500 sm:text-right">
             <div className="font-medium text-slate-700">{selected.serverName}</div>
             <div className="font-mono">{selected.url}</div>
           </div>

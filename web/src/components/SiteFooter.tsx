@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { api } from '@/lib/api';
 
 const FALLBACK_NAME = 'uniqbd.com Log Server';
@@ -16,6 +17,7 @@ const VENDOR = {
 } as const;
 
 export default function SiteFooter() {
+  const path = usePathname();
   const [companyName, setCompanyName] = useState(FALLBACK_NAME);
   const [licensed, setLicensed] = useState<boolean | null>(null);
 
@@ -48,9 +50,10 @@ export default function SiteFooter() {
 
   const brandLetter = companyName.trim().charAt(0).toUpperCase() || 'U';
   const showSupport = licensed === false;
+  const onLogin = path === '/login';
 
   return (
-    <footer className="ls-footer">
+    <footer className={`ls-footer${onLogin ? ' ls-footer-login' : ''}`}>
       <div className="ls-footer-inner">
         <div className="ls-footer-brand">
           <span className="ls-footer-mark">{brandLetter}</span>
